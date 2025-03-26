@@ -640,6 +640,9 @@
   <div class="controls">
     <button onclick="downloadPDF()">Download PDF</button>
     <button onclick="resetForm()">Reset Form</button>
+    <button onclick="saveToJSON()">Save as JSON</button>
+    <button onclick="document.getElementById('jsonFileInput').click()">Open JSON</button>
+    <input type="file" id="jsonFileInput" style="display: none;" accept=".json" onchange="loadFromJSON(event)">
   </div>
 
   <script>
@@ -873,6 +876,130 @@
       document.querySelectorAll('select').forEach(select => select.value = '');
       document.getElementById('totalScore').innerText = '0';
       updateScore();
+    }
+
+    function saveToJSON() {
+      const data = {
+        scores: { ...scores },
+        inputs: {
+          scenario: document.getElementById('scenario').value,
+          candidateName: document.getElementById('candidateName').value,
+          evaluatorName: document.getElementById('evaluatorName').value
+        },
+        textareas: {},
+        selects: {},
+        buttons: {}
+      };
+
+      // Collect textarea values
+      document.querySelectorAll('textarea').forEach(textarea => {
+        if (textarea.id) {
+          data.textareas[textarea.id] = textarea.value;
+        } else {
+          const question = textarea.closest('.question');
+          if (question) {
+            const label = question.querySelector('label')?.innerText;
+            if (label) data.textareas[label] = textarea.value;
+          }
+        }
+      });
+
+      // Collect select values
+      document.querySelectorAll('select').forEach(select => {
+        const key = select.closest('.question')?.querySelector('span')?.id.replace('-score', '');
+        if (key) data.selects[key] = select.value;
+      });
+
+      // Collect button states
+      document.querySelectorAll('.buttons button, .multi-select button').forEach(button => {
+        const key = button.closest('.question')?.querySelector('span')?.id.replace('-score', '');
+        if (key) {
+          if (!data.buttons[key]) data.buttons[key] = [];
+          if (button.classList.contains('selected')) {
+            data.buttons[key].push(button.innerText);
+          }
+        }
+      });
+
+      // Collect text inputs
+      document.querySelectorAll('input[type="text"]').forEach(input => {
+        const key = input.closest('.question')?.querySelector('span')?.id.replace('-score', '');
+        if (key && !['scenario', 'candidateName', 'evaluatorName'].includes(key)) {
+          data.inputs[key] = input.value;
+        }
+      });
+
+      const jsonStr = JSON.stringify(data, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Tactical_Score_Sheet_${data.inputs.scenario || 'Untitled'}_${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function loadFromJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          
+          // Reset form first
+          resetForm();
+
+          // Load scores
+          Object.assign(scores, data.scores);
+          for (const key in scores) {
+            const maxPoints = key === 'tc' ? 6 : key.startsWith('oi') ? 10 : key.startsWith('fua') || key.startsWith('sua') ? 1 : 2;
+            document.getElementById(`${key}-score`).innerText = `${scores[key]}/${maxPoints}`;
+          }
+
+          // Load inputs
+          document.getElementById('scenario').value = data.inputs.scenario || '';
+          document.getElementById('candidateName').value = data.inputs.candidateName || '';
+          document.getElementById('evaluatorName').value = data.inputs.evaluatorName || '';
+          for (const key in data.inputs) {
+            if (!['scenario', 'candidateName', 'evaluatorName'].includes(key)) {
+              const input = document.querySelector(`#${key}-score`)?.parentNode.querySelector('input[type="text"]');
+              if (input) input.value = data.inputs[key];
+            }
+          }
+
+          // Load textareas
+          for (const key in data.textareas) {
+            const textarea = document.getElementById(key) || 
+                           document.querySelector(`label:contains("${key}")`)?.parentNode.querySelector('textarea');
+            if (textarea) textarea.value = data.textareas[key];
+          }
+
+          // Load selects
+          for (const key in data.selects) {
+            const select = document.querySelector(`#${key}-score`)?.parentNode.querySelector('select');
+            if (select) select.value = data.selects[key];
+          }
+
+          // Load button states
+          for (const key in data.buttons) {
+            const buttons = document.querySelector(`#${key}-score`)?.parentNode.querySelectorAll('.buttons button, .multi-select button');
+            if (buttons) {
+              buttons.forEach(button => {
+                if (data.buttons[key].includes(button.innerText)) {
+                  button.classList.add('selected');
+                }
+              });
+            }
+          }
+
+          updateScore();
+        } catch (error) {
+          alert('Error loading JSON file: ' + error.message);
+        }
+      };
+      reader.readAsText(file);
     }
 
     window.onload = function() {
