@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tactical Score Sheet</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body { 
+      font-family: 'Arial', sans-serif; 
+      padding: 20px; 
+      max-width: 900px; 
+      margin: auto; 
+      background-color: #f9f9f9; 
+      color: #333; 
+    }
+    h1 { 
+      text-align: center; 
+      color: #2c3e50; 
+      margin-bottom: 30px; 
+    }
+    h2 { 
+      margin-top: 0; 
+      color: #34495e; 
+      border-bottom: 2px solid #3498db; 
+      padding-bottom: 5px; 
+    }
+    details.section { 
+      margin-bottom: 20px; 
+      padding: 15px; 
+      border: 1px solid #ddd; 
+      border-radius: 8px; 
+      background-color: #fff; 
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+      page-break-before: auto; 
+      page-break-inside: avoid; 
+    }
+    summary { 
+      cursor: pointer; 
+      color: #3498db; 
+      font-weight: bold; 
+    }
+    .question { 
+      display: grid; 
+      grid-template-columns: 1fr auto auto; 
+      align-items: center; 
+      margin-bottom: 15px; 
+      column-gap: 15px; 
+      page-break-inside: avoid; 
+    }
+    .buttons, .multi-select { 
+      display: flex; 
+      gap: 8px; 
+      flex-wrap: wrap; 
+    }
+    input[type="text"], textarea, select { 
+      width: 100%; 
+      margin-top: 5px; 
+      margin-bottom: 10px; 
+      padding: 6px; 
+      border: 1px solid #ccc; 
+      border-radius: 4px; 
+      font-size: 14px; 
+    }
+    .full-width-input { 
+      grid-column: 1 / -1; 
+      margin-top: 10px; 
+    }
+    textarea { 
+      resize: vertical; 
+    }
+    .notes { 
+      grid-column: 1 / -1; 
+      margin-top: 5px; 
+    }
+    .score, .subscore { 
+      font-weight: bold; 
+      font-size: 1.2em; 
+      margin-top: 20px; 
+      page-break-before: avoid; 
+    }
+    .subscore.red { color: #e74c3c; }
+    .subscore.yellow { color: #f1c40f; }
+    .subscore.green { color: #2ecc71; }
+    button { 
+      padding: 6px 12px; 
+      cursor: pointer; 
+      background-color: #ecf0f1; 
+      border: 1px solid #bdc3c7; 
+      border-radius: 4px; 
+      transition: background-color 0.2s; 
+    }
+    button:hover { 
+      background-color: #dfe6e9; 
+    }
+    button.selected { 
+      background-color: #3498db; 
+      color: white; 
+      border-color: #2980b9; 
+    }
+    .controls { 
+      margin: 20px 0; 
+      text-align: center; 
+    }
+    .controls button { 
+      margin: 0 10px; 
+      background-color: #2ecc71; 
+      color: white; 
+      border: none; 
+    }
+    .controls button:hover { 
+      background-color: #27ae60; 
+    }
+    .overall-question { 
+      margin-bottom: 25px; 
+      page-break-inside: avoid; 
+    }
+    .overall-question label { 
+      font-weight: bold; 
+    }
+    details.grade-details { 
+      margin-top: 5px; 
+    }
+    details.grade-details summary { 
+      color: #3498db; 
+      font-size: 0.9em; 
+      font-weight: normal; 
+    }
+    details ul { 
+      margin: 5px 0 0 20px; 
+      padding: 0; 
+      list-style-type: none; 
+      font-size: 0.85em; 
+      color: #7f8c8d; 
+    }
+    details ul li { 
+      margin-bottom: 5px; 
+    }
+    @media (max-width: 600px) {
+      .question { 
+        grid-template-columns: 1fr; 
+        row-gap: 10px; 
+      }
+      .notes { 
+        margin-top: 0; 
+      }
+      .buttons, .multi-select { 
+        justify-content: center; 
+      }
+    }
+    @media print {
+      body { 
+        background-color: #fff; 
+        padding: 10px; 
+        margin: 0; 
+      }
+      details.section { 
+        border: none; 
+        box-shadow: none; 
+        padding: 10px; 
+      }
+      summary { 
+        display: none; 
+      }
+      .controls { 
+        display: none; 
+      }
+      button { 
+        border: 1px solid #000; 
+        background-color: #fff; 
+        color: #000; 
+      }
+      .selected { 
+        background-color: #3498db !important; 
+        color: #fff !important; 
+      }
+      h1 { 
+        page-break-after: avoid; 
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Tactical Score Sheet</h1>
+
+  <!-- Scenario and Evaluator Info -->
+  <details class="section" open>
+    <summary>Scenario and Evaluator Info</summary>
+    <label title="Describe the scenario being evaluated">Scenario: 
+      <input type="text" id="scenario" placeholder="Enter scenario..." />
+    </label>
+    <label title="Name of the candidate being evaluated">Candidate Name: <input type="text" id="candidateName" placeholder="Enter candidate name..." /></label>
+    <label title="Name of the evaluator">Evaluator Name: <input type="text" id="evaluatorName" placeholder="Enter evaluator name..." /></label>
+  </details>
+
+  <!-- Initial Radio Report -->
+  <details class="section" open>
+    <summary>1. Initial Radio Report (12 pts)</summary>
+    <div class="question">
+      <label title="Was the incident address confirmed?">a) Incident Address Confirmed:</label>
+      <div class="buttons">
+        <button onclick="setScore('irr1', 2, this)">Yes</button>
+        <button onclick="setScore('irr1', 0, this)">No</button>
+      </div>
+      <span id="irr1-score">0/2</span>
+      <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
+    </div>
+    <div class="question">
+      <label title="Was the building size declared?">b) Building Size Declared:</label>
+      <div class="buttons">
+        <button onclick="setScore('irr2', 2, this)">Yes</button>
+        <button onclick="setScore('irr2', 0, this)">No</button>
+      </div>
+      <span id="irr2-score">0/2</span>
+      <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
+    </div>
+    <div class="question">
+      <label title="Was the building height declared?">c) Building Height Declared:</label>
+      <div class="buttons">
+        <button onclick="setScore('irr3', 2, this)">Yes</button>
+        <button onclick="setScore('irr3', 0, this)">No</button>
+      </div>
+      <span id="irr3-score">0/2</span>
+      <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
+    </div>
+    <div class="question">
+      <label title="Was the occupancy type declared?">d) Occupancy Type Declared:</label>
+      <div class="buttons">
+        <button onclick="setScore('irr4', 2, this)">Yes</button>
+        <button onclick="setScore('irr4', 0, this)">No</button>
+      </div>
+      <span id="irr4-score">0/2</span>
+      <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
+    </div>
+    <div class="question">
+      <label title="Describe the problem observed">e) Problem Description:</label>
+      <div class="multi-select">
+        <button onclick="toggleMultiSelect('irr5', this)">Light Smoke</button>
+        <button onclick="toggleMultiSelect('irr5', this)">Working Fire</button>
+        <button onclick="toggleMultiSelect('irr5', this)">Defensive Fire</button>
+      </div>
+      <span id="irr5-score">0/2</span>
+      <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
+    </div>
+    <div class="question">
+      <label title="Specify the location of the problem">f) Location of Problem:</label>
+      <input type="text" oninput="setScore('irr6', this.value ? 2 : 0)" placeholder="Enter location..." />
+      <span id="irr6-score">0/2</span>
+    </div>
+    <div class="subscore" id="irr-subscore">Initial Radio Report Score: <span id="irr-total">0</span>/12</div>
+  </details>
+
+  <!-- IAP -->
+  <details class="section" open>
+    <summary>2. IAP (14 pts)</summary>
+    <div class="question">
+      <label title="Tasks assigned in the IAP">a) Tasks:</label>
+      <div class="multi-select">
+        <button onclick="toggleMultiSelect('iap1', this)">Supply Line</button>
+        <button onclick="toggleMultiSelect('iap1', this)">Stretch</button>
+        <button onclick="toggleMultiSelect('iap1', this)">Highrise Pack</button>
+        <button onclick="toggleMultiSelect('iap1', this)">Quick Hit</button>
+        <button onclick="toggleMultiSelect('iap1', this)">Defensive Ops</button>
+      </div>
+      <span id="iap1-score">0/2</span>
+      <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
+    </div>
+    <div class="question">
+      <label title="Location specified in the IAP">b) Location:</label>
+      <input type="text" oninput="setScore('iap2', this.value ? 2 : 0)" placeholder="Enter location..." />
+      <span id="iap2-score">0/2</span>
+      <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
+    </div>
+    <div class="question">
+      <label title="Objectives of the IAP">c) Objectives:</label>
+      <div class="multi-select">
+        <button onclick="toggleMultiSelect('iap3', this)">Primary Search</button>
+        <button onclick="toggleMultiSelect('iap3', this)">Fire Control</button>
+        <button onclick="toggleMultiSelect('iap3', this)">Rescue</button>
+      </div>
+      <span id="iap3-score">0/2</span>
+      <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
+    </div>
+    <div class="question">
+      <label title="Strategy chosen for the IAP">d) Strategy:</label>
+      <div class="multi-select">
+        <button onclick="toggleMultiSelect('iap4', this)">Offensive</button>
+        <button onclick="toggleMultiSelect('iap4', this)">Defensive</button>
+        <button onclick="toggleMultiSelect('iap4', this)">Investigating</button>
+      </div>
+      <span id="iap4-score">0/2</span>
+      <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
+    </div>
+    <div class="question">
+      <label title="Did the candidate assume command?">e) Assume Command:</label>
+      <div class="buttons">
+        <button onclick="setScore('iap5', 2, this)">Yes</button>
+        <button onclick="setScore('iap5', 0, this)">No</button>
+      </div>
+      <span id="iap5-score">0/2</span>
+    </div>
+    <div class="question">
+      <label title="Name assigned to the command">f) Command Name:</label>
+      <input type="text" oninput="setScore('iap6', this.value ? 2 : 0)" placeholder="Enter command name..." />
+      <span id="iap6-score">0/2</span>
+    </div>
+    <div class="question">
+      <label title="Were resources determined?">g) Resource Determination:</label>
+      <div class="buttons">
+        <button onclick="setScore('iap7', 2, this)">Yes</button>
+        <button onclick="setScore('iap7', 0, this)">No</button>
+      </div>
+      <span id="iap7-score">0/2</span>
+      <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
+    </div>
+    <div class="subscore" id="iap-subscore">IAP Score: <span id="iap-total">0</span>/14</div>
+  </details>
+
+  <!-- Follow Up Report -->
+  <details class="section" open>
+    <summary>3. Follow Up Report (10 pts)</summary>
+    <div class="question">
+      <label title="Was a 360-degree assessment completed?">a) Results of 360:</label>
+      <div class="buttons">
+        <button onclick="setScore('fur1', 2, this)">Completed</button>
+        <button onclick="setScore('fur1', 0, this)">No</button>
+      </div>
+      <span id="fur1-score">0/2</span>
+    </div>
+    <div class="question">
+      <label title="Type of basement identified">b) Basement Type:</label>
+      <div class="multi-select">
+        <button onclick="toggleMultiSelect('fur2', this)">No Basement</button>
+        <button onclick="toggleMultiSelect('fur2', this)">Look Out</button>
+        <button onclick="toggleMultiSelect('fur2', this)">Walk Out</button>
+        <button onclick="toggleMultiSelect('fur2', this)">Window Well</button>
+      </div>
+      <span id="fur2-score">0/2</span>
+    </div>
+    <div class="question">
+      <label title="Were changes made to the IAP?">c) Changes to IAP:</label>
+      <div class="buttons">
+        <button onclick="setScore('fur3', 2, this)">Yes</button>
+        <button onclick="setScore('fur3', 2, this)">No</button>
+        <button onclick="setScore('fur3', 0, this)">Not Stated</button>
+      </div>
+      <span id="fur3-score">0/2</span>
+      <textarea class="notes" rows="2" placeholder="Document IAP changes..."></textarea>
+    </div>
+    <div class="question">
+      <label title="Location where accountability is maintained">d) Accountability Location:</label>
+      <div class="multi-select">
+        <button onclick="toggleMultiSelect('fur4', this)">ALPHA</button>
+        <button onclick="toggleMultiSelect('fur4', this)">BRAVO</button>
+        <button onclick="toggleMultiSelect('fur4', this)">CHARLIE</button>
+        <button onclick="toggleMultiSelect('fur4', this)">DELTA</button>
+      </div>
+      <span id="fur4-score">0/2</span>
+    </div>
+    <div class="question">
+      <label title="Was the tactical channel confirmed?">e) Confirm TAC Channel:</label>
+      <div class="buttons">
+        <button onclick="setScore('fur5', 2, this)">Yes</button>
+        <button onclick="setScore('fur5', 0, this)">No</button>
+      </div>
+      <span id="fur5-score">0/2</span>
+      <textarea class="notes" rows="2" placeholder="TAC Channel used..."></textarea>
+    </div>
+    <div class="subscore" id="fur-subscore">Follow Up Report Score: <span id="fur-total">0</span>/10</div>
+  </details>
+
+  <!-- First Unit Assignment -->
+  <details class="section" open>
+    <summary>4. First Unit Assignment (4 pts)</summary>
+    <div class="question">
+      <label title="Unit assigned for the first task">a) Unit:</label>
+      <select onchange="setScore('fua1', this.value ? 1 : 0)">
+        <option value="">Select Unit</option>
+        <option value="E-1">E-1</option>
+        <option value="E-2">E-2</option>
+        <option value="E-4">E-4</option>
+        <option value="E-5">E-5</option>
+        <option value="L-1">L-1</option>
+        <option value="L-2">L-2</option>
+      </select>
+      <span id="fua1-score">0/1</span>
+    </div>
+    <div class="question">
+      <label title="Task assigned to the first unit">b) Task:</label>
+      <div class="buttons">
+        <button onclick="toggleNotCompleted('fua2', this)">Not Completed</button>
+      </div>
+      <span id="fua2-score">0/1</span>
+      <input type="text" class="full-width-input" oninput="updateFuaSuaScore('fua2')" placeholder="Enter task..." />
+    </div>
+    <div class="question">
+      <label title="Location for the first unit">c) Location:</label>
+      <div class="buttons">
+        <button onclick="toggleNotCompleted('fua3', this)">Not Completed</button>
+      </div>
+      <span id="fua3-score">0/1</span>
+      <input type="text" class="full-width-input" oninput="updateFuaSuaScore('fua3')" placeholder="Enter location..." />
+    </div>
+    <div class="question">
+      <label title="Objective for the first unit">d) Objective:</label>
+      <div class="buttons">
+        <button onclick="toggleNotCompleted('fua4', this)">Not Completed</button>
+      </div>
+      <span id="fua4-score">0/1</span>
+      <input type="text" class="full-width-input" oninput="updateFuaSuaScore('fua4')" placeholder="Enter objective..." />
+    </div>
+    <div class="subscore" id="fua-subscore">First Unit Score: <span id="fua-total">0</span>/4</div>
+  </details>
+
+  <!-- Second Unit Assignment -->
+  <details class="section" open>
+    <summary>5. Second Unit Assignment (4 pts)</summary>
+    <div class="question">
+      <label title="Unit assigned for the second task">a) Unit:</label>
+      <select onchange="setScore('sua1', this.value ? 1 : 0)">
+        <option value="">Select Unit</option>
+        <option value="E-1">E-1</option>
+        <option value="E-2">E-2</option>
+        <option value="E-4">E-4</option>
+        <option value="E-5">E-5</option>
+        <option value="L-1">L-1</option>
+        <option value="L-2">L-2</option>
+      </select>
+      <span id="sua1-score">0/1</span>
+    </div>
+    <div class="question">
+      <label title="Task assigned to the second unit">b) Task:</label>
+      <div class="buttons">
+        <button onclick="toggleNotCompleted('sua2', this)">Not Completed</button>
+      </div>
+      <span id="sua2-score">0/1</span>
+      <input type="text" class="full-width-input" oninput="updateFuaSuaScore('sua2')" placeholder="Enter task..." />
+    </div>
+    <div class="question">
+      <label title="Location for the second unit">c) Location:</label>
+      <div class="buttons">
+        <button onclick="toggleNotCompleted('sua3', this)">Not Completed</button>
+      </div>
+      <span id="sua3-score">0/1</span>
+      <input type="text" class="full-width-input" oninput="updateFuaSuaScore('sua3')" placeholder="Enter location..." />
+    </div>
+    <div class="question">
+      <label title="Objective for the second unit">d) Objective:</label>
+      <div class="buttons">
+        <button onclick="toggleNotCompleted('sua4', this)">Not Completed</button>
+      </div>
+      <span id="sua4-score">0/1</span>
+      <input type="text" class="full-width-input" oninput="updateFuaSuaScore('sua4')" placeholder="Enter objective..." />
+    </div>
+    <div class="subscore" id="sua-subscore">Second Unit Score: <span id="sua-total">0</span>/4</div>
+  </details>
+
+  <!-- Transferred Command -->
+  <details class="section" open>
+    <summary>6. Transferred Command Accurately (6 pts)</summary>
+    <div class="question">
+      <label title="Was command transferred accurately?">Transferred Command:</label>
+      <div class="buttons">
+        <button onclick="setScore('tc', 6, this)">Yes</button>
+        <button onclick="setScore('tc', 0, this)">No</button>
+      </div>
+      <span id="tc-score">0/6</span>
+      <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
+    </div>
+    <div class="subscore" id="tc-subscore">Transferred Command Score: <span id="tc-total">0</span>/6</div>
+  </details>
+
+  <!-- Follow-up Questions -->
+  <details class="section" open>
+    <summary>Follow-up Questions</summary>
+    <div class="question">
+      <label title="Explain the reasoning behind the chosen strategy and tactics">1. Why did you choose this strategy and tactics?</label>
+      <textarea class="notes" rows="5" id="q1" placeholder="Enter response..."></textarea>
+    </div>
+    <div class="question">
+      <label title="Reflect on potential improvements">2. Anything you would change or do differently?</label>
+      <textarea class="notes" rows="5" id="q2" placeholder="Enter response..."></textarea>
+    </div>
+  </details>
+
+  <!-- Overall Impression -->
+  <details class="section" open>
+    <summary>Overall Impression (50 pts)</summary>
+    <div class="overall-question">
+      <div class="question">
+        <label title="Assess the candidate's competence">a) Competence (0-10):</label>
+        <select onchange="setScore('oi1', this.value)">
+          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+        <span id="oi1-score">0/10</span>
+      </div>
+      <details class="grade-details">
+        <summary>Grade Justifications</summary>
+        <ul>
+          <li>1-3: The candidate somewhat recognizes firefighters’ abilities and gives assignments.</li>
+          <li>3-7: The candidate recognizes firefighters’ abilities and gives assignments to utilize those abilities.</li>
+          <li>7-10: The candidate strongly recognizes firefighters’ abilities and gives assignments to fully utilize those abilities.</li>
+        </ul>
+      </details>
+      <textarea class="notes" rows="2" placeholder="Notes on Competence..."></textarea>
+    </div>
+    <div class="overall-question">
+      <div class="question">
+        <label title="Assess the candidate's decisiveness">b) Decisiveness (0-10):</label>
+        <select onchange="setScore('oi2', this.value)">
+          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+        <span id="oi2-score">0/10</span>
+      </div>
+      <details class="grade-details">
+        <summary>Grade Justifications</summary>
+        <ul>
+          <li>1-3: There is some wavering about decision-making; the Candidate is unsure about what needs to be accomplished and by whom.</li>
+          <li>3-7: There is little to no wavering about decision-making; the Candidate is determined about what needs to be accomplished and by whom.</li>
+          <li>7-10: There is no wavering about decision-making; the Candidate is determined and forceful about what needs to be accomplished and by whom.</li>
+        </ul>
+      </details>
+      <textarea class="notes" rows="2" placeholder="Notes on Decisiveness..."></textarea>
+    </div>
+    <div class="overall-question">
+      <div class="question">
+        <label title="Assess the candidate's self-confidence">c) Self Confidence (0-10):</label>
+        <select onchange="setScore('oi3', this.value)">
+          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+        <span id="oi3-score">0/10</span>
+      </div>
+      <details class="grade-details">
+        <summary>Grade Justifications</summary>
+        <ul>
+          <li>1-3: The candidate is unsure of himself. Limited to no confidence during the scenario.</li>
+          <li>3-7: The candidate has good composure. Demonstrates some calmness and confidence during the scenario.</li>
+          <li>7-10: The candidate has great composure and a high level of calmness during the scenario.</li>
+        </ul>
+      </details>
+      <textarea class="notes" rows="2" placeholder="Notes on Self Confidence..."></textarea>
+    </div>
+    <div class="overall-question">
+      <div class="question">
+        <label title="Assess the candidate's goal orientation">d) Goal Oriented (0-10):</label>
+        <select onchange="setScore('oi4', this.value)">
+          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+        <span id="oi4-score">0/10</span>
+      </div>
+      <details class="grade-details">
+        <summary>Grade Justifications</summary>
+        <ul>
+          <li>1-3: The Candidate can somewhat achieve tactical priorities and remains somewhat aware of the safety of firefighters.</li>
+          <li>3-7: The Candidate achieves tactical priorities and remains aware of the safety of firefighters.</li>
+          <li>7-10: The Candidate can shift into a higher gear to achieve tactical priorities and be constantly protective of the safety of firefighters.</li>
+        </ul>
+      </details>
+      <textarea class="notes" rows="2" placeholder="Notes on Goal Oriented..."></textarea>
+    </div>
+    <div class="overall-question">
+      <div class="question">
+        <label title="Assess the candidate's communication skills">e) Communication (0-10):</label>
+        <select onchange="setScore('oi5', this.value)">
+          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+        <span id="oi5-score">0/10</span>
+      </div>
+      <details class="grade-details">
+        <summary>Grade Justifications</summary>
+        <ul>
+          <li>1-3: The Candidate’s communication isn’t clear or direct. The candidate fails to use common terminology. Little to no command presence.</li>
+          <li>3-7: The Candidate’s communication is somewhat clear. The candidate uses mostly common terminology and is somewhat articulate. Some command presence.</li>
+          <li>7-10: The Candidate’s communication is clear and direct. The candidate uses common terminology and is very articulate. Strong command presence.</li>
+        </ul>
+      </details>
+      <textarea class="notes" rows="2" placeholder="Notes on Communication..."></textarea>
+    </div>
+    <div class="subscore" id="oi-subscore">Overall Impression Score: <span id="oi-total">0</span>/50</div>
+  </details>
+
+  <!-- Additional Notes/Comments -->
+  <details class="section" open>
+    <summary>Additional Notes/Comments</summary>
+    <textarea rows="5" id="notes" placeholder="Enter additional notes..."></textarea>
+  </details>
+
+  <!-- Total Score and Controls -->
+  <div class="score">Total Score: <span id="totalScore">0</span>/100</div>
+  <div class="controls">
+    <button onclick="downloadPDF()">Download PDF</button>
+    <button onclick="resetForm()">Reset Form</button>
+  </div>
+
+  <script>
+    const { jsPDF } = window.jspdf;
+    const scores = {
+      irr1: 0, irr2: 0, irr3: 0, irr4: 0, irr5: 0, irr6: 0,
+      iap1: 0, iap2: 0, iap3: 0, iap4: 0, iap5: 0, iap6: 0, iap7: 0,
+      fur1: 0, fur2: 0, fur3: 0, fur4: 0, fur5: 0,
+      fua1: 0, fua2: 0, fua3: 0, fua4: 0,
+      sua1: 0, sua2: 0, sua3: 0, sua4: 0,
+      tc: 0,
+      oi1: 0, oi2: 0, oi3: 0, oi4: 0, oi5: 0
+    };
+
+    function setScore(key, value, button = null) {
+      scores[key] = Number(value);
+      if (button) {
+        const group = button.parentNode.querySelectorAll('button');
+        group.forEach(btn => btn.classList.remove('selected'));
+        button.classList.add('selected');
+      }
+      const maxPoints = key === 'tc' ? 6 : key.startsWith('oi') ? 10 : key.startsWith('fua') || key.startsWith('sua') ? 1 : 2;
+      document.getElementById(`${key}-score`).innerText = `${scores[key]}/${maxPoints}`;
+      updateScore();
+    }
+
+    function toggleMultiSelect(key, button) {
+      button.classList.toggle('selected');
+      const buttons = button.parentNode.querySelectorAll('button');
+      const selectedCount = Array.from(buttons).filter(btn => btn.classList.contains('selected')).length;
+      const maxPoints = key.startsWith('fua') || key.startsWith('sua') ? 1 : 2;
+      setScore(key, selectedCount > 0 ? maxPoints : 0);
+    }
+
+    function toggleNotCompleted(key, button) {
+      button.classList.toggle('selected');
+      updateFuaSuaScore(key);
+    }
+
+    function updateFuaSuaScore(key) {
+      const button = document.querySelector(`#${key}-score`).parentNode.querySelector('.buttons button');
+      const textInput = document.querySelector(`#${key}-score`).parentNode.querySelector('input[type="text"]');
+      const isNotCompleted = button.classList.contains('selected');
+      const hasText = textInput.value.trim() !== '';
+      scores[key] = isNotCompleted ? 0 : (hasText ? 1 : 0);
+      document.getElementById(`${key}-score`).innerText = `${scores[key]}/1`;
+      updateScore();
+    }
+
+    function updateScore() {
+      let total = 0;
+      let irrTotal = 0;
+      let iapTotal = 0;
+      let furTotal = 0;
+      let fuaTotal = 0;
+      let suaTotal = 0;
+      let tcTotal = 0;
+      let oiTotal = 0;
+
+      for (const key in scores) {
+        total += scores[key];
+        if (key.startsWith('irr')) irrTotal += scores[key];
+        if (key.startsWith('iap')) iapTotal += scores[key];
+        if (key.startsWith('fur')) furTotal += scores[key];
+        if (key.startsWith('fua')) fuaTotal += scores[key];
+        if (key.startsWith('sua')) suaTotal += scores[key];
+        if (key === 'tc') tcTotal = scores[key];
+        if (key.startsWith('oi')) oiTotal += scores[key];
+      }
+
+      document.getElementById('totalScore').innerText = total;
+      updateSubscore('irr', irrTotal, 12);
+      updateSubscore('iap', iapTotal, 14);
+      updateSubscore('fur', furTotal, 10);
+      updateSubscore('fua', fuaTotal, 4);
+      updateSubscore('sua', suaTotal, 4);
+      updateSubscore('tc', tcTotal, 6);
+      updateSubscore('oi', oiTotal, 50);
+    }
+
+    function updateSubscore(prefix, score, max) {
+      const subscoreElement = document.getElementById(`${prefix}-subscore`);
+      const totalElement = document.getElementById(`${prefix}-total`);
+      totalElement.innerText = score;
+      const percentage = (score / max) * 100;
+      subscoreElement.classList.remove('red', 'yellow', 'green');
+      if (percentage < 50) subscoreElement.classList.add('red');
+      else if (percentage <= 75) subscoreElement.classList.add('yellow');
+      else subscoreElement.classList.add('green');
+    }
+
+    function downloadPDF() {
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'letter'
+      });
+
+      // Margins and layout settings
+      const marginLeft = 10;
+      const marginTop = 10;
+      const lineHeight = 6;
+      let y = marginTop;
+
+      // Helper function to check for page break
+      function checkPageBreak(currentY, spaceNeeded) {
+        if (currentY + spaceNeeded > 279 - 10) { // 279mm is letter height
+          doc.addPage();
+          return marginTop;
+        }
+        return currentY;
+      }
+
+      // Title
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Tactical Score Sheet', 105, y, { align: 'center' });
+      y += lineHeight * 2;
+
+      // Scenario and Evaluator Info
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      y = checkPageBreak(y, lineHeight * 4);
+      doc.text('Scenario and Evaluator Info', marginLeft, y);
+      y += lineHeight;
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Scenario: ${document.getElementById('scenario').value || 'N/A'}`, marginLeft + 5, y);
+      y += lineHeight;
+      doc.text(`Candidate Name: ${document.getElementById('candidateName').value || 'N/A'}`, marginLeft + 5, y);
+      y += lineHeight;
+      doc.text(`Evaluator Name: ${document.getElementById('evaluatorName').value || 'N/A'}`, marginLeft + 5, y);
+      y += lineHeight * 2;
+
+      // All Sections
+      const sections = document.querySelectorAll('details.section');
+      sections.forEach((section, index) => {
+        if (index > 0) { // Skip Scenario and Evaluator Info
+          const title = section.querySelector('summary').innerText;
+          const questions = section.querySelectorAll('.question');
+          const subscore = section.querySelector('.subscore')?.innerText || '';
+          const textareaOnly = section.querySelector('textarea:not(.notes)')?.value || '';
+
+          // Section Title
+          doc.setFontSize(12);
+          doc.setFont('helvetica', 'bold');
+          y = checkPageBreak(y, lineHeight * (questions.length + (textareaOnly ? 2 : 0) + (subscore ? 2 : 0) + 3));
+          doc.text(title, marginLeft, y);
+          y += lineHeight;
+
+          // Questions or Textarea
+          doc.setFontSize(10);
+          doc.setFont('helvetica', 'normal');
+          if (questions.length > 0) {
+            questions.forEach(question => {
+              const label = question.querySelector('label').innerText;
+              const score = question.querySelector('span')?.innerText || '';
+              let options = [];
+              let selectValue = '';
+              if (question.querySelector('.buttons')) {
+                options = Array.from(question.querySelectorAll('.buttons button'))
+                  .map(btn => btn.innerText + (btn.classList.contains('selected') ? ' (Selected)' : ''));
+              } else if (question.querySelector('.multi-select')) {
+                options = Array.from(question.querySelectorAll('.multi-select button'))
+                  .map(btn => btn.innerText + (btn.classList.contains('selected') ? ' (Selected)' : ''));
+              } else if (question.querySelector('select')) {
+                selectValue = question.querySelector('select').value || '0';
+              }
+              const textInput = question.querySelector('input[type="text"]');
+              const inputValue = textInput ? textInput.value || textInput.placeholder : '';
+              const notes = question.querySelector('.notes')?.value || '';
+
+              y = checkPageBreak(y, lineHeight * (options.length + (selectValue ? 1 : 0) + (inputValue ? 1 : 0) + (notes ? 2 : 0) + 2));
+              doc.text(`${label}${score ? ' ' + score : ''}`, marginLeft + 5, y);
+              y += lineHeight;
+              options.forEach(option => {
+                doc.text(`- ${option}`, marginLeft + 10, y);
+                y += lineHeight;
+              });
+              if (selectValue) {
+                doc.text(`- Score: ${selectValue}`, marginLeft + 10, y);
+                y += lineHeight;
+              }
+              if (inputValue) {
+                doc.text(`- ${inputValue}`, marginLeft + 10, y);
+                y += lineHeight;
+              }
+              if (notes) {
+                doc.text('Notes:', marginLeft + 10, y);
+                y += lineHeight;
+                doc.text(notes, marginLeft + 15, y, { maxWidth: 180 });
+                y += lineHeight * Math.ceil(notes.length / 90) + lineHeight;
+              }
+            });
+          }
+          if (textareaOnly) {
+            y = checkPageBreak(y, lineHeight * 2);
+            doc.text(textareaOnly, marginLeft + 5, y, { maxWidth: 190 });
+            y += lineHeight * Math.ceil(textareaOnly.length / 95) + lineHeight;
+          }
+
+          // Subscore
+          if (subscore) {
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            y = checkPageBreak(y, lineHeight);
+            doc.text(subscore, marginLeft + 5, y);
+            y += lineHeight * 2;
+          }
+        }
+      });
+
+      // Total Score
+      const totalScore = document.getElementById('totalScore').innerText;
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      y = checkPageBreak(y, lineHeight);
+      doc.text(`Total Score: ${totalScore}/100`, marginLeft, y);
+
+      // Save PDF
+      doc.save(`Tactical_Score_Sheet_${document.getElementById('scenario').value || 'Untitled'}_${Date.now()}.pdf`);
+    }
+
+    function resetForm() {
+      for (const key in scores) {
+        scores[key] = 0;
+        const maxPoints = key === 'tc' ? 6 : key.startsWith('oi') ? 10 : key.startsWith('fua') || key.startsWith('sua') ? 1 : 2;
+        document.getElementById(`${key}-score`).innerText = `0/${maxPoints}`;
+      }
+      document.querySelectorAll('button').forEach(btn => btn.classList.remove('selected'));
+      document.querySelectorAll('input[type="text"], textarea').forEach(input => input.value = '');
+      document.querySelectorAll('select').forEach(select => select.value = '');
+      document.getElementById('totalScore').innerText = '0';
+      updateScore();
+    }
+
+    window.onload = function() {
+      resetForm();
+    };
+  </script>
+</body>
+</html>
