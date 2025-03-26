@@ -971,9 +971,20 @@
 
           // Load textareas
           for (const key in data.textareas) {
-            const textarea = document.getElementById(key) || 
-                           document.querySelector(`label:contains("${key}")`)?.parentNode.querySelector('textarea');
-            if (textarea) textarea.value = data.textareas[key];
+            // First try by ID
+            let textarea = document.getElementById(key);
+            if (textarea) {
+              textarea.value = data.textareas[key];
+            } else {
+              // Then try by matching label text within questions
+              document.querySelectorAll('.question').forEach(question => {
+                const label = question.querySelector('label');
+                if (label && label.innerText === key) {
+                  const ta = question.querySelector('textarea');
+                  if (ta) ta.value = data.textareas[key];
+                }
+              });
+            }
           }
 
           // Load selects
