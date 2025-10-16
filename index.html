@@ -203,10 +203,6 @@
         background: transparent; 
         width: 100%; 
         page-break-inside: avoid; 
-        placeholder-color: transparent; 
-      }
-      input[type="text"]::placeholder, textarea::placeholder {
-        color: transparent; 
       }
       textarea {
         height: auto; 
@@ -220,11 +216,10 @@
         page-break-before: avoid; 
       }
       .score-input {
-        border: none; 
-        background: transparent; 
+        border: 1px solid #000; 
+        background: #fff; 
         width: 40px; 
         text-align: center; 
-        font-weight: bold; 
       }
       h1 {
         page-break-after: avoid; 
@@ -278,7 +273,7 @@
       </div>
       <div class="selected-display" id="irr1-selected"></div>
       <span id="irr1-score"><input type="number" min="0" max="2" value="0" class="score-input" onchange="setManualScore('irr1', this.value)">/2</span>
-      <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
+      <textarea class="notes" rows="2" placeholder="Notes..." id="irr1-notes"></textarea>
     </div>
     <div class="question">
       <label title="Was the building size declared?">b) Building Size Declared:</label>
@@ -288,7 +283,7 @@
       </div>
       <div class="selected-display" id="irr2-selected"></div>
       <span id="irr2-score"><input type="number" min="0" max="2" value="0" class="score-input" onchange="setManualScore('irr2', this.value)">/2</span>
-      <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
+      <textarea class="notes" rows="2" placeholder="Notes..." id="irr2-notes"></textarea>
     </div>
     <div class="question">
       <label title="Was the building height declared?">c) Building Height Declared:</label>
@@ -298,7 +293,7 @@
       </div>
       <div class="selected-display" id="irr3-selected"></div>
       <span id="irr3-score"><input type="number" min="0" max="2" value="0" class="score-input" onchange="setManualScore('irr3', this.value)">/2</span>
-      <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
+      <textarea class="notes" rows="2" placeholder="Notes..." id="irr3-notes"></textarea>
     </div>
     <div class="question">
       <label title="Was the occupancy type declared?">d) Occupancy Type Declared:</label>
@@ -308,7 +303,7 @@
       </div>
       <div class="selected-display" id="irr4-selected"></div>
       <span id="irr4-score"><input type="number" min="0" max="2" value="0" class="score-input" onchange="setManualScore('irr4', this.value)">/2</span>
-      <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
+      <textarea class="notes" rows="2" placeholder="Notes..." id="irr4-notes"></textarea>
     </div>
     <div class="question">
       <label title="Describe the problem observed">e) Problem Description:</label>
@@ -319,7 +314,7 @@
       </div>
       <div class="selected-display" id="irr5-selected"></div>
       <span id="irr5-score"><input type="number" min="0" max="2" value="0" class="score-input" onchange="setManualScore('irr5', this.value)">/2</span>
-      <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
+      <textarea class="notes" rows="2" placeholder="Notes..." id="irr5-notes"></textarea>
     </div>
     <div class="question">
       <label title="Specify the location of the problem">f) Location of Problem:</label>
@@ -343,13 +338,13 @@
       </div>
       <div class="selected-display" id="iap1-selected"></div>
       <span id="iap1-score"><input type="number" min="0" max="2" value="0" class="score-input" onchange="setManualScore('iap1', this.value)">/2</span>
-      <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
+      <textarea class="notes" rows="2" placeholder="Notes..." id="iap1-notes"></textarea>
     </div>
     <div class="question">
       <label title="Location specified in the IAP">b) Location:</label>
       <input type="text" oninput="setScore('iap2', this.value ? 2 : 0)" placeholder="Enter location..." />
       <span id="iap2-score"><input type="number" min="0" max="2" value="0" class="score-input" onchange="setManualScore('iap2', this.value)">/2</span>
-      <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
+      <textarea class="notes" rows="2" placeholder="Notes..." id="iap2-notes"></textarea>
     </div>
     <div class="question">
       <label title="Objectives of the IAP">c) Objectives:</label>
@@ -360,7 +355,7 @@
       </div>
       <div class="selected-display" id="iap3-selected"></div>
       <span id="iap3-score"><input type="number" min="0" max="2" value="0" class="score-input" onchange="setManualScore('iap3', this.value)">/2</span>
-      <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
+      <textarea class="notes" rows="2" placeholder="Notes..." id="iap3-notes"></textarea>
     </div>
     <div class="question">
       <label title="Strategy chosen for the IAP">d) Strategy:</label>
@@ -371,7 +366,7 @@
       </div>
       <div class="selected-display" id="iap4-selected"></div>
       <span id="iap4-score"><input type="number" min="0" max="2" value="0" class="score-input" onchange="setManualScore('iap4', this.value)">/2</span>
-      <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
+      <textarea class="notes" rows="2" placeholder="Notes..." id="iap4-notes"></textarea>
     </div>
     <div class="question">
       <label title="Did the candidate assume command?">e) Assume Command:</label>
@@ -395,7 +390,7 @@
       </div>
       <div class="selected-display" id="iap7-selected"></div>
       <span id="iap7-score"><input type="number" min="0" max="2" value="0" class="score-input" onchange="setManualScore('iap7', this.value)">/2</span>
-      <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
+      <textarea class="notes" rows="2" placeholder="Notes..." id="iap7-notes"></textarea>
     </div>
     <div class="subscore" id="iap-subscore">IAP Score: <span id="iap-total">0</span>/14</div>
   </details>
@@ -432,7 +427,7 @@
       </div>
       <div class="selected-display" id="fur3-selected"></div>
       <span id="fur3-score"><input type="number" min="0" max="2" value="0" class="score-input" onchange="setManualScore('fur3', this.value)">/2</span>
-      <textarea class="notes" rows="2" placeholder="Document IAP changes..."></textarea>
+      <textarea class="notes" rows="2" placeholder="Document IAP changes..." id="fur3-notes"></textarea>
     </div>
     <div class="question">
       <label title="Location where accountability is maintained">d) Accountability Location:</label>
@@ -453,7 +448,7 @@
       </div>
       <div class="selected-display" id="fur5-selected"></div>
       <span id="fur5-score"><input type="number" min="0" max="2" value="0" class="score-input" onchange="setManualScore('fur5', this.value)">/2</span>
-      <textarea class="notes" rows="2" placeholder="TAC Channel used..."></textarea>
+      <textarea class="notes" rows="2" placeholder="TAC Channel used..." id="fur5-notes"></textarea>
     </div>
     <div class="subscore" id="fur-subscore">Follow Up Report Score: <span id="fur-total">0</span>/10</div>
   </details>
@@ -483,7 +478,7 @@
       </div>
       <div class="selected-display" id="fua2-selected"></div>
       <span id="fua2-score"><input type="number" min="0" max="1" value="0" class="score-input" onchange="setManualScore('fua2', this.value)">/1</span>
-      <input type="text" class="full-width-input" oninput="updateFuaSuaScore('fua2')" placeholder="Enter task..." />
+      <input type="text" class="full-width-input" oninput="updateFuaSuaScore('fua2')" placeholder="Enter task..." id="fua2-input" />
     </div>
     <div class="question">
       <label title="Location for the first unit">c) Location:</label>
@@ -492,7 +487,7 @@
       </div>
       <div class="selected-display" id="fua3-selected"></div>
       <span id="fua3-score"><input type="number" min="0" max="1" value="0" class="score-input" onchange="setManualScore('fua3', this.value)">/1</span>
-      <input type="text" class="full-width-input" oninput="updateFuaSuaScore('fua3')" placeholder="Enter location..." />
+      <input type="text" class="full-width-input" oninput="updateFuaSuaScore('fua3')" placeholder="Enter location..." id="fua3-input" />
     </div>
     <div class="question">
       <label title="Objective for the first unit">d) Objective:</label>
@@ -501,7 +496,7 @@
       </div>
       <div class="selected-display" id="fua4-selected"></div>
       <span id="fua4-score"><input type="number" min="0" max="1" value="0" class="score-input" onchange="setManualScore('fua4', this.value)">/1</span>
-      <input type="text" class="full-width-input" oninput="updateFuaSuaScore('fua4')" placeholder="Enter objective..." />
+      <input type="text" class="full-width-input" oninput="updateFuaSuaScore('fua4')" placeholder="Enter objective..." id="fua4-input" />
     </div>
     <div class="subscore" id="fua-subscore">First Unit Score: <span id="fua-total">0</span>/4</div>
   </details>
@@ -531,7 +526,7 @@
       </div>
       <div class="selected-display" id="sua2-selected"></div>
       <span id="sua2-score"><input type="number" min="0" max="1" value="0" class="score-input" onchange="setManualScore('sua2', this.value)">/1</span>
-      <input type="text" class="full-width-input" oninput="updateFuaSuaScore('sua2')" placeholder="Enter task..." />
+      <input type="text" class="full-width-input" oninput="updateFuaSuaScore('sua2')" placeholder="Enter task..." id="sua2-input" />
     </div>
     <div class="question">
       <label title="Location for the second unit">c) Location:</label>
@@ -540,7 +535,7 @@
       </div>
       <div class="selected-display" id="sua3-selected"></div>
       <span id="sua3-score"><input type="number" min="0" max="1" value="0" class="score-input" onchange="setManualScore('sua3', this.value)">/1</span>
-      <input type="text" class="full-width-input" oninput="updateFuaSuaScore('sua3')" placeholder="Enter location..." />
+      <input type="text" class="full-width-input" oninput="updateFuaSuaScore('sua3')" placeholder="Enter location..." id="sua3-input" />
     </div>
     <div class="question">
       <label title="Objective for the second unit">d) Objective:</label>
@@ -549,7 +544,7 @@
       </div>
       <div class="selected-display" id="sua4-selected"></div>
       <span id="sua4-score"><input type="number" min="0" max="1" value="0" class="score-input" onchange="setManualScore('sua4', this.value)">/1</span>
-      <input type="text" class="full-width-input" oninput="updateFuaSuaScore('sua4')" placeholder="Enter objective..." />
+      <input type="text" class="full-width-input" oninput="updateFuaSuaScore('sua4')" placeholder="Enter objective..." id="sua4-input" />
     </div>
     <div class="subscore" id="sua-subscore">Second Unit Score: <span id="sua-total">0</span>/4</div>
   </details>
@@ -565,7 +560,7 @@
       </div>
       <div class="selected-display" id="tc-selected"></div>
       <span id="tc-score"><input type="number" min="0" max="6" value="0" class="score-input" onchange="setManualScore('tc', this.value)">/6</span>
-      <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
+      <textarea class="notes" rows="2" placeholder="Notes..." id="tc-notes"></textarea>
     </div>
     <div class="subscore" id="tc-subscore">Transferred Command Score: <span id="tc-total">0</span>/6</div>
   </details>
@@ -612,7 +607,7 @@
           <li>7-10: The candidate strongly recognizes firefighters’ abilities and gives assignments to fully utilize those abilities.</li>
         </ul>
       </details>
-      <textarea class="notes" rows="2" placeholder="Notes on Competence..."></textarea>
+      <textarea class="notes" rows="2" placeholder="Notes on Competence..." id="oi1-notes"></textarea>
     </div>
     <div class="overall-question">
       <div class="question">
@@ -640,7 +635,7 @@
           <li>7-10: There is no wavering about decision-making; the Candidate is determined and forceful about what needs to be accomplished and by whom.</li>
         </ul>
       </details>
-      <textarea class="notes" rows="2" placeholder="Notes on Decisiveness..."></textarea>
+      <textarea class="notes" rows="2" placeholder="Notes on Decisiveness..." id="oi2-notes"></textarea>
     </div>
     <div class="overall-question">
       <div class="question">
@@ -668,7 +663,7 @@
           <li>7-10: The candidate has great composure and a high level of calmness during the scenario.</li>
         </ul>
       </details>
-      <textarea class="notes" rows="2" placeholder="Notes on Self Confidence..."></textarea>
+      <textarea class="notes" rows="2" placeholder="Notes on Self Confidence..." id="oi3-notes"></textarea>
     </div>
     <div class="overall-question">
       <div class="question">
@@ -696,7 +691,7 @@
           <li>7-10: The Candidate can shift into a higher gear to achieve tactical priorities and be constantly protective of the safety of firefighters.</li>
         </ul>
       </details>
-      <textarea class="notes" rows="2" placeholder="Notes on Goal Oriented..."></textarea>
+      <textarea class="notes" rows="2" placeholder="Notes on Goal Oriented..." id="oi4-notes"></textarea>
     </div>
     <div class="overall-question">
       <div class="question">
@@ -724,7 +719,7 @@
           <li>7-10: The Candidate’s communication is clear and direct. The candidate uses common terminology and is very articulate. Strong command presence.</li>
         </ul>
       </details>
-      <textarea class="notes" rows="2" placeholder="Notes on Communication..."></textarea>
+      <textarea class="notes" rows="2" placeholder="Notes on Communication..." id="oi5-notes"></textarea>
     </div>
     <div class="subscore" id="oi-subscore">Overall Impression Score: <span id="oi-total">0</span>/50</div>
   </details>
@@ -899,7 +894,7 @@
         if (index > 0) {
           const title = section.querySelector('summary').innerText;
           const questions = section.querySelectorAll('.question');
-          const subscore = section.querySelector('.subscore')?.innerText.replace(/<[^>]*>/g, '') || '';
+          const subscore = section.querySelector('.subscore')?.innerText || '';
           const subscoreValue = section.querySelector('.subscore span')?.innerText || '';
 
           doc.setFontSize(12);
@@ -911,20 +906,28 @@
           doc.setFontSize(10);
           doc.setFont('helvetica', 'normal');
           questions.forEach(question => {
-            const label = question.querySelector('label').innerText.replace(/:/g, '');
-            const score = question.querySelector('.score-input').value + question.querySelector('span').innerText.split('/')[1];
-            let selected = question.querySelector('.selected-display').textContent || '';
+            const label = question.querySelector('label').innerText;
+            const score = question.querySelector('.score-input').value + '/' + getMaxPoints(question.querySelector('span').id.replace('-score', ''));
+            const selected = question.querySelector('.selected-display').textContent || '';
             const textInput = question.querySelector('input[type="text"]') ?.value || '';
             const notes = question.querySelector('.notes') ?.value || '';
             const selectValue = question.querySelector('select') ?.value || '';
 
             y = checkPageBreak(y, lineHeight * 5);
-            doc.text(`${label}:`, marginLeft + 5, y);
+            doc.text(label, marginLeft + 5, y);
             y += lineHeight;
-            if (selected) doc.text(selected, marginLeft + 10, y), y += lineHeight;
-            if (selectValue && selectValue !== '') doc.text(selectValue, marginLeft + 10, y), y += lineHeight;
-            if (textInput) doc.text(textInput, marginLeft + 10, y), y += lineHeight;
-            doc.text(score, marginLeft + 10, y - lineHeight * (selected || selectValue || textInput ? 1 : 0) - 3); // adjust position for score
+            if (selected) {
+              doc.text(selected, marginLeft + 10, y);
+              y += lineHeight;
+            }
+            if (selectValue && selectValue !== '0') {
+              doc.text(selectValue, marginLeft + 10, y);
+              y += lineHeight;
+            }
+            if (textInput) {
+              doc.text(textInput, marginLeft + 10, y);
+              y += lineHeight;
+            }
             if (notes) {
               doc.text('Notes: ', marginLeft + 10, y);
               y += lineHeight;
@@ -932,12 +935,13 @@
               doc.text(notesLines, marginLeft + 15, y);
               y += lineHeight * notesLines.length;
             }
+            doc.text(score, marginLeft + 5 + label.length * 3, y - lineHeight * (1 + (selected ? 1 : 0) + (selectValue ? 1 : 0) + (textInput ? 1 : 0) + (notes ? 1 + (notesLines ? notesLines.length : 0) : 0) + 1)); // approximate position
             y += lineHeight;
           });
 
           if (subscore) {
             doc.setFont('helvetica', 'bold');
-            doc.text(`${subscore.replace(subscoreValue, '')}${subscoreValue}`, marginLeft + 5, y);
+            doc.text(subscore, marginLeft + 5, y);
             y += lineHeight * 2;
           }
         }
@@ -992,7 +996,7 @@
       });
 
       document.querySelectorAll('input[type="text"]').forEach(input => {
-        const key = input.closest('.question') ?.querySelector('span') ?.id.replace('-score', '');
+        const key = input.id ? input.id.replace('-input', '') : input.closest('.question') ?.querySelector('span') ?.id.replace('-score', '');
         if (key) data.inputs[key] = input.value;
       });
 
@@ -1036,7 +1040,8 @@
           }
 
           for (const key in data.textareas) {
-            document.getElementById(key).value = data.textareas[key];
+            const ta = document.getElementById(key);
+            if (ta) ta.value = data.textareas[key];
           }
 
           for (const key in data.selects) {
@@ -1047,7 +1052,7 @@
 
           for (const key in data.inputs) {
             if (!['scenario', 'candidateName', 'evaluatorName'].includes(key)) {
-              const input = document.querySelector(`#${key}-score`).parentNode.querySelector('input[type="text"]');
+              const input = document.getElementById(`${key}-input`) || document.querySelector(`#${key}-score`).parentNode.querySelector('input[type="text"]');
               if (input) input.value = data.inputs[key];
             }
           }
