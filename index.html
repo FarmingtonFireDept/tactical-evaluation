@@ -136,6 +136,19 @@
     details ul li { 
       margin-bottom: 5px; 
     }
+    .score-input {
+      width: 30px;
+      font-weight: bold;
+      font-size: 1.2em;
+      text-align: center;
+      border: none;
+      background: transparent;
+    }
+    .selected-display {
+      display: none;
+      margin-top: 5px;
+      font-style: italic;
+    }
     @media (max-width: 600px) {
       .question { 
         grid-template-columns: 1fr; 
@@ -153,29 +166,90 @@
         background-color: #fff; 
         padding: 10px; 
         margin: 0; 
+        font-size: 12pt; 
+        color: #000; 
       }
       details.section { 
         border: none; 
         box-shadow: none; 
-        padding: 10px; 
+        padding: 10px 0; 
+        page-break-inside: avoid; 
       }
-      summary { 
-        display: none; 
-      }
-      .controls { 
-        display: none; 
-      }
-      button { 
-        border: 1px solid #000; 
-        background-color: #fff; 
-        color: #000; 
-      }
-      .selected { 
-        background-color: #3498db !important; 
-        color: #fff !important; 
-      }
-      h1 { 
+      details.section > summary { 
+        display: block; 
+        font-weight: bold; 
+        font-size: 14pt; 
+        margin-bottom: 10px; 
         page-break-after: avoid; 
+      }
+      .question {
+        display: block; 
+        margin-bottom: 15px; 
+        page-break-inside: avoid; 
+      }
+      .question label {
+        display: block; 
+        font-weight: bold; 
+      }
+      .buttons, .multi-select, .controls, select {
+        display: none !important; 
+      }
+      .selected-display {
+        display: block; 
+      }
+      input[type="text"], textarea {
+        border: none; 
+        border-bottom: 1px solid #000; 
+        background: transparent; 
+        width: 100%; 
+        page-break-inside: avoid; 
+        placeholder-color: transparent; 
+      }
+      input[type="text"]::placeholder, textarea::placeholder {
+        color: transparent; 
+      }
+      textarea {
+        height: auto; 
+        min-height: 50px; 
+      }
+      .notes {
+        margin-top: 10px; 
+      }
+      .score, .subscore {
+        font-weight: bold; 
+        page-break-before: avoid; 
+      }
+      .score-input {
+        border: none; 
+        background: transparent; 
+        width: 40px; 
+        text-align: center; 
+        font-weight: bold; 
+      }
+      h1 {
+        page-break-after: avoid; 
+        text-align: center; 
+        font-size: 18pt; 
+      }
+      details.grade-details[open] {
+        display: block;
+      }
+      details.grade-details summary {
+        display: block;
+        font-size: 10pt;
+        font-weight: bold;
+      }
+      details.section {
+        margin-bottom: 20px;
+      }
+      .full-width-input {
+        display: block;
+      }
+      #jsonFileInput {
+        display: none;
+      }
+      .overall-question {
+        page-break-inside: avoid;
       }
     }
   </style>
@@ -202,7 +276,8 @@
         <button onclick="setScore('irr1', 2, this)">Yes</button>
         <button onclick="setScore('irr1', 0, this)">No</button>
       </div>
-      <span id="irr1-score">0/2</span>
+      <div class="selected-display" id="irr1-selected"></div>
+      <span id="irr1-score"><input type="number" min="0" max="2" value="0" class="score-input" onchange="setManualScore('irr1', this.value)">/2</span>
       <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
     </div>
     <div class="question">
@@ -211,7 +286,8 @@
         <button onclick="setScore('irr2', 2, this)">Yes</button>
         <button onclick="setScore('irr2', 0, this)">No</button>
       </div>
-      <span id="irr2-score">0/2</span>
+      <div class="selected-display" id="irr2-selected"></div>
+      <span id="irr2-score"><input type="number" min="0" max="2" value="0" class="score-input" onchange="setManualScore('irr2', this.value)">/2</span>
       <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
     </div>
     <div class="question">
@@ -220,7 +296,8 @@
         <button onclick="setScore('irr3', 2, this)">Yes</button>
         <button onclick="setScore('irr3', 0, this)">No</button>
       </div>
-      <span id="irr3-score">0/2</span>
+      <div class="selected-display" id="irr3-selected"></div>
+      <span id="irr3-score"><input type="number" min="0" max="2" value="0" class="score-input" onchange="setManualScore('irr3', this.value)">/2</span>
       <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
     </div>
     <div class="question">
@@ -229,7 +306,8 @@
         <button onclick="setScore('irr4', 2, this)">Yes</button>
         <button onclick="setScore('irr4', 0, this)">No</button>
       </div>
-      <span id="irr4-score">0/2</span>
+      <div class="selected-display" id="irr4-selected"></div>
+      <span id="irr4-score"><input type="number" min="0" max="2" value="0" class="score-input" onchange="setManualScore('irr4', this.value)">/2</span>
       <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
     </div>
     <div class="question">
@@ -239,13 +317,14 @@
         <button onclick="toggleMultiSelect('irr5', this)">Working Fire</button>
         <button onclick="toggleMultiSelect('irr5', this)">Defensive Fire</button>
       </div>
-      <span id="irr5-score">0/2</span>
+      <div class="selected-display" id="irr5-selected"></div>
+      <span id="irr5-score"><input type="number" min="0" max="2" value="0" class="score-input" onchange="setManualScore('irr5', this.value)">/2</span>
       <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
     </div>
     <div class="question">
       <label title="Specify the location of the problem">f) Location of Problem:</label>
       <input type="text" oninput="setScore('irr6', this.value ? 2 : 0)" placeholder="Enter location..." />
-      <span id="irr6-score">0/2</span>
+      <span id="irr6-score"><input type="number" min="0" max="2" value="0" class="score-input" onchange="setManualScore('irr6', this.value)">/2</span>
     </div>
     <div class="subscore" id="irr-subscore">Initial Radio Report Score: <span id="irr-total">0</span>/12</div>
   </details>
@@ -262,13 +341,14 @@
         <button onclick="toggleMultiSelect('iap1', this)">Quick Hit</button>
         <button onclick="toggleMultiSelect('iap1', this)">Defensive Ops</button>
       </div>
-      <span id="iap1-score">0/2</span>
+      <div class="selected-display" id="iap1-selected"></div>
+      <span id="iap1-score"><input type="number" min="0" max="2" value="0" class="score-input" onchange="setManualScore('iap1', this.value)">/2</span>
       <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
     </div>
     <div class="question">
       <label title="Location specified in the IAP">b) Location:</label>
       <input type="text" oninput="setScore('iap2', this.value ? 2 : 0)" placeholder="Enter location..." />
-      <span id="iap2-score">0/2</span>
+      <span id="iap2-score"><input type="number" min="0" max="2" value="0" class="score-input" onchange="setManualScore('iap2', this.value)">/2</span>
       <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
     </div>
     <div class="question">
@@ -278,7 +358,8 @@
         <button onclick="toggleMultiSelect('iap3', this)">Fire Control</button>
         <button onclick="toggleMultiSelect('iap3', this)">Rescue</button>
       </div>
-      <span id="iap3-score">0/2</span>
+      <div class="selected-display" id="iap3-selected"></div>
+      <span id="iap3-score"><input type="number" min="0" max="2" value="0" class="score-input" onchange="setManualScore('iap3', this.value)">/2</span>
       <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
     </div>
     <div class="question">
@@ -288,7 +369,8 @@
         <button onclick="toggleMultiSelect('iap4', this)">Defensive</button>
         <button onclick="toggleMultiSelect('iap4', this)">Investigating</button>
       </div>
-      <span id="iap4-score">0/2</span>
+      <div class="selected-display" id="iap4-selected"></div>
+      <span id="iap4-score"><input type="number" min="0" max="2" value="0" class="score-input" onchange="setManualScore('iap4', this.value)">/2</span>
       <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
     </div>
     <div class="question">
@@ -297,12 +379,13 @@
         <button onclick="setScore('iap5', 2, this)">Yes</button>
         <button onclick="setScore('iap5', 0, this)">No</button>
       </div>
-      <span id="iap5-score">0/2</span>
+      <div class="selected-display" id="iap5-selected"></div>
+      <span id="iap5-score"><input type="number" min="0" max="2" value="0" class="score-input" onchange="setManualScore('iap5', this.value)">/2</span>
     </div>
     <div class="question">
       <label title="Name assigned to the command">f) Command Name:</label>
       <input type="text" oninput="setScore('iap6', this.value ? 2 : 0)" placeholder="Enter command name..." />
-      <span id="iap6-score">0/2</span>
+      <span id="iap6-score"><input type="number" min="0" max="2" value="0" class="score-input" onchange="setManualScore('iap6', this.value)">/2</span>
     </div>
     <div class="question">
       <label title="Were resources determined?">g) Resource Determination:</label>
@@ -310,7 +393,8 @@
         <button onclick="setScore('iap7', 2, this)">Yes</button>
         <button onclick="setScore('iap7', 0, this)">No</button>
       </div>
-      <span id="iap7-score">0/2</span>
+      <div class="selected-display" id="iap7-selected"></div>
+      <span id="iap7-score"><input type="number" min="0" max="2" value="0" class="score-input" onchange="setManualScore('iap7', this.value)">/2</span>
       <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
     </div>
     <div class="subscore" id="iap-subscore">IAP Score: <span id="iap-total">0</span>/14</div>
@@ -325,7 +409,8 @@
         <button onclick="setScore('fur1', 2, this)">Completed</button>
         <button onclick="setScore('fur1', 0, this)">No</button>
       </div>
-      <span id="fur1-score">0/2</span>
+      <div class="selected-display" id="fur1-selected"></div>
+      <span id="fur1-score"><input type="number" min="0" max="2" value="0" class="score-input" onchange="setManualScore('fur1', this.value)">/2</span>
     </div>
     <div class="question">
       <label title="Type of basement identified">b) Basement Type:</label>
@@ -335,7 +420,8 @@
         <button onclick="toggleMultiSelect('fur2', this)">Walk Out</button>
         <button onclick="toggleMultiSelect('fur2', this)">Window Well</button>
       </div>
-      <span id="fur2-score">0/2</span>
+      <div class="selected-display" id="fur2-selected"></div>
+      <span id="fur2-score"><input type="number" min="0" max="2" value="0" class="score-input" onchange="setManualScore('fur2', this.value)">/2</span>
     </div>
     <div class="question">
       <label title="Were changes made to the IAP?">c) Changes to IAP:</label>
@@ -344,7 +430,8 @@
         <button onclick="setScore('fur3', 2, this)">No</button>
         <button onclick="setScore('fur3', 0, this)">Not Stated</button>
       </div>
-      <span id="fur3-score">0/2</span>
+      <div class="selected-display" id="fur3-selected"></div>
+      <span id="fur3-score"><input type="number" min="0" max="2" value="0" class="score-input" onchange="setManualScore('fur3', this.value)">/2</span>
       <textarea class="notes" rows="2" placeholder="Document IAP changes..."></textarea>
     </div>
     <div class="question">
@@ -355,7 +442,8 @@
         <button onclick="toggleMultiSelect('fur4', this)">CHARLIE</button>
         <button onclick="toggleMultiSelect('fur4', this)">DELTA</button>
       </div>
-      <span id="fur4-score">0/2</span>
+      <div class="selected-display" id="fur4-selected"></div>
+      <span id="fur4-score"><input type="number" min="0" max="2" value="0" class="score-input" onchange="setManualScore('fur4', this.value)">/2</span>
     </div>
     <div class="question">
       <label title="Was the tactical channel confirmed?">e) Confirm TAC Channel:</label>
@@ -363,7 +451,8 @@
         <button onclick="setScore('fur5', 2, this)">Yes</button>
         <button onclick="setScore('fur5', 0, this)">No</button>
       </div>
-      <span id="fur5-score">0/2</span>
+      <div class="selected-display" id="fur5-selected"></div>
+      <span id="fur5-score"><input type="number" min="0" max="2" value="0" class="score-input" onchange="setManualScore('fur5', this.value)">/2</span>
       <textarea class="notes" rows="2" placeholder="TAC Channel used..."></textarea>
     </div>
     <div class="subscore" id="fur-subscore">Follow Up Report Score: <span id="fur-total">0</span>/10</div>
@@ -380,17 +469,20 @@
         <option value="E-2">E-2</option>
         <option value="E-4">E-4</option>
         <option value="E-5">E-5</option>
+        <option value="E-6">E-6</option>
+        <option value="Sq-4">Sq-4</option>
         <option value="L-1">L-1</option>
         <option value="L-2">L-2</option>
       </select>
-      <span id="fua1-score">0/1</span>
+      <span id="fua1-score"><input type="number" min="0" max="1" value="0" class="score-input" onchange="setManualScore('fua1', this.value)">/1</span>
     </div>
     <div class="question">
       <label title="Task assigned to the first unit">b) Task:</label>
       <div class="buttons">
         <button onclick="toggleNotCompleted('fua2', this)">Not Completed</button>
       </div>
-      <span id="fua2-score">0/1</span>
+      <div class="selected-display" id="fua2-selected"></div>
+      <span id="fua2-score"><input type="number" min="0" max="1" value="0" class="score-input" onchange="setManualScore('fua2', this.value)">/1</span>
       <input type="text" class="full-width-input" oninput="updateFuaSuaScore('fua2')" placeholder="Enter task..." />
     </div>
     <div class="question">
@@ -398,7 +490,8 @@
       <div class="buttons">
         <button onclick="toggleNotCompleted('fua3', this)">Not Completed</button>
       </div>
-      <span id="fua3-score">0/1</span>
+      <div class="selected-display" id="fua3-selected"></div>
+      <span id="fua3-score"><input type="number" min="0" max="1" value="0" class="score-input" onchange="setManualScore('fua3', this.value)">/1</span>
       <input type="text" class="full-width-input" oninput="updateFuaSuaScore('fua3')" placeholder="Enter location..." />
     </div>
     <div class="question">
@@ -406,7 +499,8 @@
       <div class="buttons">
         <button onclick="toggleNotCompleted('fua4', this)">Not Completed</button>
       </div>
-      <span id="fua4-score">0/1</span>
+      <div class="selected-display" id="fua4-selected"></div>
+      <span id="fua4-score"><input type="number" min="0" max="1" value="0" class="score-input" onchange="setManualScore('fua4', this.value)">/1</span>
       <input type="text" class="full-width-input" oninput="updateFuaSuaScore('fua4')" placeholder="Enter objective..." />
     </div>
     <div class="subscore" id="fua-subscore">First Unit Score: <span id="fua-total">0</span>/4</div>
@@ -423,17 +517,20 @@
         <option value="E-2">E-2</option>
         <option value="E-4">E-4</option>
         <option value="E-5">E-5</option>
+        <option value="E-6">E-6</option>
+        <option value="Sq-4">Sq-4</option>
         <option value="L-1">L-1</option>
         <option value="L-2">L-2</option>
       </select>
-      <span id="sua1-score">0/1</span>
+      <span id="sua1-score"><input type="number" min="0" max="1" value="0" class="score-input" onchange="setManualScore('sua1', this.value)">/1</span>
     </div>
     <div class="question">
       <label title="Task assigned to the second unit">b) Task:</label>
       <div class="buttons">
         <button onclick="toggleNotCompleted('sua2', this)">Not Completed</button>
       </div>
-      <span id="sua2-score">0/1</span>
+      <div class="selected-display" id="sua2-selected"></div>
+      <span id="sua2-score"><input type="number" min="0" max="1" value="0" class="score-input" onchange="setManualScore('sua2', this.value)">/1</span>
       <input type="text" class="full-width-input" oninput="updateFuaSuaScore('sua2')" placeholder="Enter task..." />
     </div>
     <div class="question">
@@ -441,7 +538,8 @@
       <div class="buttons">
         <button onclick="toggleNotCompleted('sua3', this)">Not Completed</button>
       </div>
-      <span id="sua3-score">0/1</span>
+      <div class="selected-display" id="sua3-selected"></div>
+      <span id="sua3-score"><input type="number" min="0" max="1" value="0" class="score-input" onchange="setManualScore('sua3', this.value)">/1</span>
       <input type="text" class="full-width-input" oninput="updateFuaSuaScore('sua3')" placeholder="Enter location..." />
     </div>
     <div class="question">
@@ -449,7 +547,8 @@
       <div class="buttons">
         <button onclick="toggleNotCompleted('sua4', this)">Not Completed</button>
       </div>
-      <span id="sua4-score">0/1</span>
+      <div class="selected-display" id="sua4-selected"></div>
+      <span id="sua4-score"><input type="number" min="0" max="1" value="0" class="score-input" onchange="setManualScore('sua4', this.value)">/1</span>
       <input type="text" class="full-width-input" oninput="updateFuaSuaScore('sua4')" placeholder="Enter objective..." />
     </div>
     <div class="subscore" id="sua-subscore">Second Unit Score: <span id="sua-total">0</span>/4</div>
@@ -464,7 +563,8 @@
         <button onclick="setScore('tc', 6, this)">Yes</button>
         <button onclick="setScore('tc', 0, this)">No</button>
       </div>
-      <span id="tc-score">0/6</span>
+      <div class="selected-display" id="tc-selected"></div>
+      <span id="tc-score"><input type="number" min="0" max="6" value="0" class="score-input" onchange="setManualScore('tc', this.value)">/6</span>
       <textarea class="notes" rows="2" placeholder="Notes..."></textarea>
     </div>
     <div class="subscore" id="tc-subscore">Transferred Command Score: <span id="tc-total">0</span>/6</div>
@@ -502,7 +602,7 @@
           <option value="9">9</option>
           <option value="10">10</option>
         </select>
-        <span id="oi1-score">0/10</span>
+        <span id="oi1-score"><input type="number" min="0" max="10" value="0" class="score-input" onchange="setManualScore('oi1', this.value)">/10</span>
       </div>
       <details class="grade-details">
         <summary>Grade Justifications</summary>
@@ -530,7 +630,7 @@
           <option value="9">9</option>
           <option value="10">10</option>
         </select>
-        <span id="oi2-score">0/10</span>
+        <span id="oi2-score"><input type="number" min="0" max="10" value="0" class="score-input" onchange="setManualScore('oi2', this.value)">/10</span>
       </div>
       <details class="grade-details">
         <summary>Grade Justifications</summary>
@@ -558,7 +658,7 @@
           <option value="9">9</option>
           <option value="10">10</option>
         </select>
-        <span id="oi3-score">0/10</span>
+        <span id="oi3-score"><input type="number" min="0" max="10" value="0" class="score-input" onchange="setManualScore('oi3', this.value)">/10</span>
       </div>
       <details class="grade-details">
         <summary>Grade Justifications</summary>
@@ -586,7 +686,7 @@
           <option value="9">9</option>
           <option value="10">10</option>
         </select>
-        <span id="oi4-score">0/10</span>
+        <span id="oi4-score"><input type="number" min="0" max="10" value="0" class="score-input" onchange="setManualScore('oi4', this.value)">/10</span>
       </div>
       <details class="grade-details">
         <summary>Grade Justifications</summary>
@@ -614,7 +714,7 @@
           <option value="9">9</option>
           <option value="10">10</option>
         </select>
-        <span id="oi5-score">0/10</span>
+        <span id="oi5-score"><input type="number" min="0" max="10" value="0" class="score-input" onchange="setManualScore('oi5', this.value)">/10</span>
       </div>
       <details class="grade-details">
         <summary>Grade Justifications</summary>
@@ -657,81 +757,103 @@
       oi1: 0, oi2: 0, oi3: 0, oi4: 0, oi5: 0
     };
 
+    function getMaxPoints(key) {
+      if (key === 'tc') return 6;
+      if (key.startsWith('oi')) return 10;
+      if (key.startsWith('fua') || key.startsWith('sua')) return 1;
+      return 2;
+    }
+
     function setScore(key, value, button = null) {
       scores[key] = Number(value);
+      const scoreSpan = document.getElementById(`${key}-score`);
+      const input = scoreSpan.querySelector('input');
+      input.value = scores[key];
       if (button) {
         const group = button.parentNode.querySelectorAll('button');
         group.forEach(btn => btn.classList.remove('selected'));
         button.classList.add('selected');
+        document.getElementById(`${key}-selected`).textContent = button.textContent;
       }
-      const maxPoints = key === 'tc' ? 6 : key.startsWith('oi') ? 10 : key.startsWith('fua') || key.startsWith('sua') ? 1 : 2;
-      document.getElementById(`${key}-score`).innerText = `${scores[key]}/${maxPoints}`;
+      updateScore();
+    }
+
+    function setManualScore(key, value) {
+      const maxPoints = getMaxPoints(key);
+      const numValue = Math.min(Math.max(Number(value), 0), maxPoints);
+      scores[key] = numValue;
       updateScore();
     }
 
     function toggleMultiSelect(key, button) {
       button.classList.toggle('selected');
       const buttons = button.parentNode.querySelectorAll('button');
+      const selected = Array.from(buttons).filter(btn => btn.classList.contains('selected')).map(b => b.textContent).join(', ');
+      document.getElementById(`${key}-selected`).textContent = selected;
       const selectedCount = Array.from(buttons).filter(btn => btn.classList.contains('selected')).length;
-      const maxPoints = key.startsWith('fua') || key.startsWith('sua') ? 1 : 2;
+      const maxPoints = getMaxPoints(key);
       setScore(key, selectedCount > 0 ? maxPoints : 0);
     }
 
     function toggleNotCompleted(key, button) {
       button.classList.toggle('selected');
+      document.getElementById(`${key}-selected`).textContent = button.classList.contains('selected') ? button.textContent : '';
       updateFuaSuaScore(key);
     }
 
     function updateFuaSuaScore(key) {
       const button = document.querySelector(`#${key}-score`).parentNode.querySelector('.buttons button');
       const textInput = document.querySelector(`#${key}-score`).parentNode.querySelector('input[type="text"]');
-      const isNotCompleted = button.classList.contains('selected');
-      const hasText = textInput.value.trim() !== '';
-      scores[key] = isNotCompleted ? 0 : (hasText ? 1 : 0);
-      document.getElementById(`${key}-score`).innerText = `${scores[key]}/1`;
-      updateScore();
+      const isNotCompleted = button && button.classList.contains('selected');
+      const hasText = textInput && textInput.value.trim() !== '';
+      const newScore = isNotCompleted ? 0 : (hasText ? getMaxPoints(key) : 0);
+      setScore(key, newScore);
     }
 
     function updateScore() {
       let total = 0;
-      let irrTotal = 0;
-      let iapTotal = 0;
-      let furTotal = 0;
-      let fuaTotal = 0;
-      let suaTotal = 0;
-      let tcTotal = 0;
-      let oiTotal = 0;
+      let irrTotal = 0, iapTotal = 0, furTotal = 0, fuaTotal = 0, suaTotal = 0, tcTotal = 0, oiTotal = 0;
 
-      for (const key in scores) {
-        total += scores[key];
-        if (key.startsWith('irr')) irrTotal += scores[key];
-        if (key.startsWith('iap')) iapTotal += scores[key];
-        if (key.startsWith('fur')) furTotal += scores[key];
-        if (key.startsWith('fua')) fuaTotal += scores[key];
-        if (key.startsWith('sua')) suaTotal += scores[key];
-        if (key === 'tc') tcTotal = scores[key];
-        if (key.startsWith('oi')) oiTotal += scores[key];
-      }
+      irrTotal = scores.irr1 + scores.irr2 + scores.irr3 + scores.irr4 + scores.irr5 + scores.irr6;
+      iapTotal = scores.iap1 + scores.iap2 + scores.iap3 + scores.iap4 + scores.iap5 + scores.iap6 + scores.iap7;
+      furTotal = scores.fur1 + scores.fur2 + scores.fur3 + scores.fur4 + scores.fur5;
+      fuaTotal = scores.fua1 + scores.fua2 + scores.fua3 + scores.fua4;
+      suaTotal = scores.sua1 + scores.sua2 + scores.sua3 + scores.sua4;
+      tcTotal = scores.tc;
+      oiTotal = scores.oi1 + scores.oi2 + scores.oi3 + scores.oi4 + scores.oi5;
 
+      document.getElementById('irr-total').innerText = irrTotal;
+      document.getElementById('iap-total').innerText = iapTotal;
+      document.getElementById('fur-total').innerText = furTotal;
+      document.getElementById('fua-total').innerText = fuaTotal;
+      document.getElementById('sua-total').innerText = suaTotal;
+      document.getElementById('tc-total').innerText = tcTotal;
+      document.getElementById('oi-total').innerText = oiTotal;
+
+      total = irrTotal + iapTotal + furTotal + fuaTotal + suaTotal + tcTotal + oiTotal;
       document.getElementById('totalScore').innerText = total;
-      updateSubscore('irr', irrTotal, 12);
-      updateSubscore('iap', iapTotal, 14);
-      updateSubscore('fur', furTotal, 10);
-      updateSubscore('fua', fuaTotal, 4);
-      updateSubscore('sua', suaTotal, 4);
-      updateSubscore('tc', tcTotal, 6);
-      updateSubscore('oi', oiTotal, 50);
+
+      updateSubscoreColors();
     }
 
-    function updateSubscore(prefix, score, max) {
-      const subscoreElement = document.getElementById(`${prefix}-subscore`);
-      const totalElement = document.getElementById(`${prefix}-total`);
-      totalElement.innerText = score;
-      const percentage = (score / max) * 100;
-      subscoreElement.classList.remove('red', 'yellow', 'green');
-      if (percentage < 50) subscoreElement.classList.add('red');
-      else if (percentage <= 75) subscoreElement.classList.add('yellow');
-      else subscoreElement.classList.add('green');
+    function updateSubscoreColors() {
+      const subscores = [
+        {el: document.getElementById('irr-subscore'), scoreId: 'irr-total', max: 12},
+        {el: document.getElementById('iap-subscore'), scoreId: 'iap-total', max: 14},
+        {el: document.getElementById('fur-subscore'), scoreId: 'fur-total', max: 10},
+        {el: document.getElementById('fua-subscore'), scoreId: 'fua-total', max: 4},
+        {el: document.getElementById('sua-subscore'), scoreId: 'sua-total', max: 4},
+        {el: document.getElementById('tc-subscore'), scoreId: 'tc-total', max: 6},
+        {el: document.getElementById('oi-subscore'), scoreId: 'oi-total', max: 50}
+      ];
+      subscores.forEach(s => {
+        const score = Number(document.getElementById(s.scoreId).innerText);
+        const percentage = (score / s.max) * 100;
+        s.el.classList.remove('red', 'yellow', 'green');
+        if (percentage < 50) s.el.classList.add('red');
+        else if (percentage <= 75) s.el.classList.add('yellow');
+        else s.el.classList.add('green');
+      });
     }
 
     function downloadPDF() {
@@ -741,28 +863,24 @@
         format: 'letter'
       });
 
-      // Margins and layout settings
       const marginLeft = 10;
       const marginTop = 10;
       const lineHeight = 6;
       let y = marginTop;
 
-      // Helper function to check for page break
       function checkPageBreak(currentY, spaceNeeded) {
-        if (currentY + spaceNeeded > 279 - 10) { // 279mm is letter height
+        if (currentY + spaceNeeded > 279 - 10) {
           doc.addPage();
           return marginTop;
         }
         return currentY;
       }
 
-      // Title
       doc.setFontSize(16);
       doc.setFont('helvetica', 'bold');
       doc.text('Tactical Score Sheet', 105, y, { align: 'center' });
       y += lineHeight * 2;
 
-      // Scenario and Evaluator Info
       doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
       y = checkPageBreak(y, lineHeight * 4);
@@ -776,105 +894,73 @@
       doc.text(`Evaluator Name: ${document.getElementById('evaluatorName').value || 'N/A'}`, marginLeft + 5, y);
       y += lineHeight * 2;
 
-      // All Sections
       const sections = document.querySelectorAll('details.section');
       sections.forEach((section, index) => {
-        if (index > 0) { // Skip Scenario and Evaluator Info
+        if (index > 0) {
           const title = section.querySelector('summary').innerText;
           const questions = section.querySelectorAll('.question');
-          const subscore = section.querySelector('.subscore')?.innerText || '';
-          const textareaOnly = section.querySelector('textarea:not(.notes)')?.value || '';
+          const subscore = section.querySelector('.subscore')?.innerText.replace(/<[^>]*>/g, '') || '';
+          const subscoreValue = section.querySelector('.subscore span')?.innerText || '';
 
-          // Section Title
           doc.setFontSize(12);
           doc.setFont('helvetica', 'bold');
-          y = checkPageBreak(y, lineHeight * (questions.length + (textareaOnly ? 2 : 0) + (subscore ? 2 : 0) + 3));
+          y = checkPageBreak(y, lineHeight * (questions.length + 5));
           doc.text(title, marginLeft, y);
           y += lineHeight;
 
-          // Questions or Textarea
           doc.setFontSize(10);
           doc.setFont('helvetica', 'normal');
-          if (questions.length > 0) {
-            questions.forEach(question => {
-              const label = question.querySelector('label').innerText;
-              const score = question.querySelector('span')?.innerText || '';
-              let options = [];
-              let selectValue = '';
-              if (question.querySelector('.buttons')) {
-                options = Array.from(question.querySelectorAll('.buttons button'))
-                  .map(btn => btn.innerText + (btn.classList.contains('selected') ? ' (Selected)' : ''));
-              } else if (question.querySelector('.multi-select')) {
-                options = Array.from(question.querySelectorAll('.multi-select button'))
-                  .map(btn => btn.innerText + (btn.classList.contains('selected') ? ' (Selected)' : ''));
-              } else if (question.querySelector('select')) {
-                selectValue = question.querySelector('select').value || '0';
-              }
-              const textInput = question.querySelector('input[type="text"]');
-              const inputValue = textInput ? textInput.value || textInput.placeholder : '';
-              const notes = question.querySelector('.notes')?.value || '';
+          questions.forEach(question => {
+            const label = question.querySelector('label').innerText.replace(/:/g, '');
+            const score = question.querySelector('.score-input').value + question.querySelector('span').innerText.split('/')[1];
+            let selected = question.querySelector('.selected-display').textContent || '';
+            const textInput = question.querySelector('input[type="text"]') ?.value || '';
+            const notes = question.querySelector('.notes') ?.value || '';
+            const selectValue = question.querySelector('select') ?.value || '';
 
-              y = checkPageBreak(y, lineHeight * (options.length + (selectValue ? 1 : 0) + (inputValue ? 1 : 0) + (notes ? 2 : 0) + 2));
-              doc.text(`${label}${score ? ' ' + score : ''}`, marginLeft + 5, y);
+            y = checkPageBreak(y, lineHeight * 5);
+            doc.text(`${label}:`, marginLeft + 5, y);
+            y += lineHeight;
+            if (selected) doc.text(selected, marginLeft + 10, y), y += lineHeight;
+            if (selectValue && selectValue !== '') doc.text(selectValue, marginLeft + 10, y), y += lineHeight;
+            if (textInput) doc.text(textInput, marginLeft + 10, y), y += lineHeight;
+            doc.text(score, marginLeft + 10, y - lineHeight * (selected || selectValue || textInput ? 1 : 0) - 3); // adjust position for score
+            if (notes) {
+              doc.text('Notes: ', marginLeft + 10, y);
               y += lineHeight;
-              options.forEach(option => {
-                doc.text(`- ${option}`, marginLeft + 10, y);
-                y += lineHeight;
-              });
-              if (selectValue) {
-                doc.text(`- Score: ${selectValue}`, marginLeft + 10, y);
-                y += lineHeight;
-              }
-              if (inputValue) {
-                doc.text(`- ${inputValue}`, marginLeft + 10, y);
-                y += lineHeight;
-              }
-              if (notes) {
-                doc.text('Notes:', marginLeft + 10, y);
-                y += lineHeight;
-                doc.text(notes, marginLeft + 15, y, { maxWidth: 180 });
-                y += lineHeight * Math.ceil(notes.length / 90) + lineHeight;
-              }
-            });
-          }
-          if (textareaOnly) {
-            y = checkPageBreak(y, lineHeight * 2);
-            doc.text(textareaOnly, marginLeft + 5, y, { maxWidth: 190 });
-            y += lineHeight * Math.ceil(textareaOnly.length / 95) + lineHeight;
-          }
+              const notesLines = doc.splitTextToSize(notes, 180);
+              doc.text(notesLines, marginLeft + 15, y);
+              y += lineHeight * notesLines.length;
+            }
+            y += lineHeight;
+          });
 
-          // Subscore
           if (subscore) {
-            doc.setFontSize(10);
             doc.setFont('helvetica', 'bold');
-            y = checkPageBreak(y, lineHeight);
-            doc.text(subscore, marginLeft + 5, y);
+            doc.text(`${subscore.replace(subscoreValue, '')}${subscoreValue}`, marginLeft + 5, y);
             y += lineHeight * 2;
           }
         }
       });
 
-      // Total Score
       const totalScore = document.getElementById('totalScore').innerText;
       doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
       y = checkPageBreak(y, lineHeight);
       doc.text(`Total Score: ${totalScore}/100`, marginLeft, y);
 
-      // Save PDF
       doc.save(`Tactical_Score_Sheet_${document.getElementById('scenario').value || 'Untitled'}_${Date.now()}.pdf`);
     }
 
     function resetForm() {
       for (const key in scores) {
         scores[key] = 0;
-        const maxPoints = key === 'tc' ? 6 : key.startsWith('oi') ? 10 : key.startsWith('fua') || key.startsWith('sua') ? 1 : 2;
-        document.getElementById(`${key}-score`).innerText = `0/${maxPoints}`;
       }
+      document.querySelectorAll('.score-input').forEach(input => input.value = 0);
       document.querySelectorAll('button').forEach(btn => btn.classList.remove('selected'));
+      document.querySelectorAll('.selected-display').forEach(div => div.textContent = '');
       document.querySelectorAll('input[type="text"], textarea').forEach(input => input.value = '');
       document.querySelectorAll('select').forEach(select => select.value = '');
-      document.getElementById('totalScore').innerText = '0';
       updateScore();
     }
 
@@ -886,47 +972,28 @@
           candidateName: document.getElementById('candidateName').value,
           evaluatorName: document.getElementById('evaluatorName').value
         },
+        selected: {},
         textareas: {},
-        selects: {},
-        buttons: {}
+        selects: {}
       };
 
-      // Collect textarea values
-      document.querySelectorAll('textarea').forEach(textarea => {
-        if (textarea.id) {
-          data.textareas[textarea.id] = textarea.value;
-        } else {
-          const question = textarea.closest('.question');
-          if (question) {
-            const label = question.querySelector('label')?.innerText;
-            if (label) data.textareas[label] = textarea.value;
-          }
-        }
+      document.querySelectorAll('.selected-display').forEach(div => {
+        const key = div.id.replace('-selected', '');
+        data.selected[key] = div.textContent;
       });
 
-      // Collect select values
+      document.querySelectorAll('textarea').forEach(ta => {
+        if (ta.id) data.textareas[ta.id] = ta.value;
+      });
+
       document.querySelectorAll('select').forEach(select => {
-        const key = select.closest('.question')?.querySelector('span')?.id.replace('-score', '');
-        if (key) data.selects[key] = select.value;
+        const key = select.closest('.question').querySelector('span').id.replace('-score', '');
+        data.selects[key] = select.value;
       });
 
-      // Collect button states
-      document.querySelectorAll('.buttons button, .multi-select button').forEach(button => {
-        const key = button.closest('.question')?.querySelector('span')?.id.replace('-score', '');
-        if (key) {
-          if (!data.buttons[key]) data.buttons[key] = [];
-          if (button.classList.contains('selected')) {
-            data.buttons[key].push(button.innerText);
-          }
-        }
-      });
-
-      // Collect text inputs
       document.querySelectorAll('input[type="text"]').forEach(input => {
-        const key = input.closest('.question')?.querySelector('span')?.id.replace('-score', '');
-        if (key && !['scenario', 'candidateName', 'evaluatorName'].includes(key)) {
-          data.inputs[key] = input.value;
-        }
+        const key = input.closest('.question') ?.querySelector('span') ?.id.replace('-score', '');
+        if (key) data.inputs[key] = input.value;
       });
 
       const jsonStr = JSON.stringify(data, null, 2);
@@ -948,60 +1015,40 @@
         try {
           const data = JSON.parse(e.target.result);
           
-          // Reset form first
           resetForm();
 
-          // Load scores
           Object.assign(scores, data.scores);
           for (const key in scores) {
-            const maxPoints = key === 'tc' ? 6 : key.startsWith('oi') ? 10 : key.startsWith('fua') || key.startsWith('sua') ? 1 : 2;
-            document.getElementById(`${key}-score`).innerText = `${scores[key]}/${maxPoints}`;
+            const input = document.querySelector(`#${key}-score .score-input`);
+            if (input) input.value = scores[key];
           }
 
-          // Load inputs
           document.getElementById('scenario').value = data.inputs.scenario || '';
           document.getElementById('candidateName').value = data.inputs.candidateName || '';
           document.getElementById('evaluatorName').value = data.inputs.evaluatorName || '';
+
+          for (const key in data.selected) {
+            document.getElementById(`${key}-selected`).textContent = data.selected[key];
+            const buttons = document.querySelectorAll(`#${key}-selected`).previousElementSibling.querySelectorAll('button');
+            buttons.forEach(btn => {
+              if (data.selected[key].includes(btn.textContent)) btn.classList.add('selected');
+            });
+          }
+
+          for (const key in data.textareas) {
+            document.getElementById(key).value = data.textareas[key];
+          }
+
+          for (const key in data.selects) {
+            const select = document.querySelector(`#${key}-score`).parentNode.querySelector('select');
+            if (select) select.value = data.selects[key];
+            scores[key] = Number(data.selects[key]);
+          }
+
           for (const key in data.inputs) {
             if (!['scenario', 'candidateName', 'evaluatorName'].includes(key)) {
-              const input = document.querySelector(`#${key}-score`)?.parentNode.querySelector('input[type="text"]');
+              const input = document.querySelector(`#${key}-score`).parentNode.querySelector('input[type="text"]');
               if (input) input.value = data.inputs[key];
-            }
-          }
-
-          // Load textareas
-          for (const key in data.textareas) {
-            // First try by ID
-            let textarea = document.getElementById(key);
-            if (textarea) {
-              textarea.value = data.textareas[key];
-            } else {
-              // Then try by matching label text within questions
-              document.querySelectorAll('.question').forEach(question => {
-                const label = question.querySelector('label');
-                if (label && label.innerText === key) {
-                  const ta = question.querySelector('textarea');
-                  if (ta) ta.value = data.textareas[key];
-                }
-              });
-            }
-          }
-
-          // Load selects
-          for (const key in data.selects) {
-            const select = document.querySelector(`#${key}-score`)?.parentNode.querySelector('select');
-            if (select) select.value = data.selects[key];
-          }
-
-          // Load button states
-          for (const key in data.buttons) {
-            const buttons = document.querySelector(`#${key}-score`)?.parentNode.querySelectorAll('.buttons button, .multi-select button');
-            if (buttons) {
-              buttons.forEach(button => {
-                if (data.buttons[key].includes(button.innerText)) {
-                  button.classList.add('selected');
-                }
-              });
             }
           }
 
